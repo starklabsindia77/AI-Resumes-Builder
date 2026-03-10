@@ -1,53 +1,75 @@
 "use client";
 import useCreateDocument from "@/features/document/use-create-document";
-import { FileText, Loader, Plus } from "lucide-react";
+import useGetSubscription from "@/hooks/use-get-subscription";
+import { FileText, Loader, Plus, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useCallback } from "react";
+import { toast } from "@/hooks/use-toast";
 
 const AddResume = () => {
   const router = useRouter();
   const { isPending, mutate } = useCreateDocument();
+  const { data: subscription, isLoading: subLoading } = useGetSubscription();
+
   const onCreate = useCallback(() => {
+    if (subscription && subscription.resumeCount >= subscription.maxResumes) {
+      toast({
+        title: "Limit Reached",
+        description: "You've reached the 1-resume limit of the Starter plan. Please upgrade to Professional to create unlimited resumes.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     mutate(
       {
         title: "Untitled Resume",
       },
       {
         onSuccess: (response) => {
-          const documentId = response.data.documentId;
-          router.push(`/dashboard/document/${documentId}/edit`);
+          if (response.success === "ok") {
+            const documentId = response.data.documentId;
+            router.push(`/dashboard/document/${documentId}/edit`);
+          } else {
+            toast({
+              title: "Error",
+              description: ("message" in response ? response.message : "Failed to create resume"),
+              variant: "destructive",
+            });
+          }
         },
       }
     );
-  }, [mutate, router]);
+  }, [mutate, router, subscription]);
+
+  const isLimitReached = subscription && subscription.resumeCount >= subscription.maxResumes;
   return (
     <>
       <div
         role="button"
         className="p-[2px] w-full cursor-pointer max-w-[164px]"
-        onClick={onCreate}
+        onClick={isLimitReached ? undefined : onCreate}
       >
         <div
-          className="
+          className={`
         py-24 h-[183px] flex flex-col
         rounded-lg gap-2 w-full max-w-full
         items-center justify-center
         border
         bg-white
-        hover:border-primary
         transition
         hover:shadow
         dark:bg-secondary
-        "
+        ${isLimitReached ? 'opacity-70 grayscale' : 'hover:border-primary'}
+        `}
         >
           <span>
-            <Plus size="30px" />
+            {isLimitReached ? <Lock size="30px" className="text-muted-foreground" /> : <Plus size="30px" />}
           </span>
           <p
-            className="text-sm font-semibold
-          "
+            className={`text-sm font-semibold ${isLimitReached ? 'text-muted-foreground' : ''}`}
           >
-            Blank Resume
+            {isLimitReached ? 'Resume Limit (Pro)' : 'Blank Resume'}
           </p>
         </div>
       </div>

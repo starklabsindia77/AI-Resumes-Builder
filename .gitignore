@@ -38,3 +38,6 @@ next-env.d.ts
 
 .vercel
 .env*.local
+.env.example
+.env.production.example
+.env.example

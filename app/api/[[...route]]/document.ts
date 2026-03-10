@@ -19,6 +19,7 @@ import {
   personalInfoTable,
   skillsTable,
 } from "@/db/schema";
+import { canCreateResume } from "@/lib/entitlements";
 
 const documentRoute = new Hono()
   .post(
@@ -30,6 +31,18 @@ const documentRoute = new Hono()
         const user = c.get("user");
         const { title } = c.req.valid("json") as DocumentSchema;
         const userId = user.id;
+
+        const canCreate = await canCreateResume(userId);
+        if (!canCreate) {
+          return c.json(
+            {
+              success: false,
+              message: "You have reached the limit of 1 resume for the Starter plan. Please upgrade to create more.",
+            },
+            403
+          );
+        }
+
         const authorName = `${user.given_name} ${user?.family_name}`;
         const authorEmail = user.email as string;
         const documentId = generateDocUUID();

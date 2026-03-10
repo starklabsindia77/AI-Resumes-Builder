@@ -15,10 +15,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
-
+import useGetSubscription from "@/hooks/use-get-subscription";
 const Header = () => {
   const { setTheme } = useTheme();
   const { user, isAuthenticated, isLoading, error } = useKindeBrowserClient();
+  const { data: subscription } = useGetSubscription();
+  const isPro = subscription?.plan === "pro" || subscription?.plan === "enterprise";
+
   return (
     <div
       className="shadow-sm w-full sticky
@@ -51,16 +54,19 @@ const Header = () => {
               <span
                 className="font-normal
                text-black/50
-               dark:text-primary-foreground"
+               dark:text-primary-foreground text-sm"
               >
                 Hi,
               </span>
               <h5
                 className="font-bold text-black 
-              dark:text-primary-foreground"
+              dark:text-primary-foreground text-sm"
               >
-                {user?.given_name} {user?.family_name}
+                {user?.given_name}
               </h5>
+              <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${isPro ? 'bg-emerald-600 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+                {subscription?.plan || 'Starter'}
+              </div>
             </div>
           ) : null}
         </div>

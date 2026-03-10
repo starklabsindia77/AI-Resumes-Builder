@@ -10,10 +10,13 @@ import PreviewModal from "../PreviewModal";
 import Download from "./Download";
 import Share from "./Share";
 import MoreOption from "./MoreOption";
+import useGetSubscription from "@/hooks/use-get-subscription";
 
 const TopSection = () => {
   const { resumeInfo, isLoading, onUpdate } = useResumeContext();
   const { mutateAsync, isPending } = useUpdateDocument();
+  const { data: subscription } = useGetSubscription();
+  const isPro = subscription?.plan === "pro" || subscription?.plan === "enterprise";
 
   const handleTitle = useCallback(
     (title: string) => {
@@ -79,6 +82,9 @@ const TopSection = () => {
             status={resumeInfo?.status}
             onSave={(value) => handleTitle(value)}
           />
+          <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${isPro ? 'bg-emerald-600 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+             {subscription?.plan || 'Starter'}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {/* {ThemeColor} */}

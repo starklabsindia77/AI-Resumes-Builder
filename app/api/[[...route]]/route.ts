@@ -3,8 +3,10 @@ import { handle } from "hono/vercel";
 import { logger } from "hono/logger";
 import { HTTPException } from "hono/http-exception";
 import documentRoute from "./document";
+import subscriptionRoute from "./subscription";
+import razorpayRoute from "./razorpay";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 const app = new Hono();
 
@@ -17,7 +19,11 @@ app.onError((err, c) => {
   return c.json({ error: "internal error" });
 });
 
-const routes = app.basePath("/api").route("/document", documentRoute);
+const routes = app
+  .basePath("/api")
+  .route("/document", documentRoute)
+  .route("/subscription", subscriptionRoute)
+  .route("/razorpay", razorpayRoute);
 
 app.get("/", (c) => {
   return c.json({

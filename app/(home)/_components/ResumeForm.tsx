@@ -2,16 +2,19 @@
 import React, { useState } from "react";
 import { useResumeContext } from "@/context/resume-info-provider";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Lock } from "lucide-react";
 import PersonalInfoForm from "./forms/PersonalInfoForm";
 import SummaryForm from "./forms/SummaryForm";
 import ExperienceForm from "./forms/ExperienceForm";
 import EducationForm from "./forms/EducationForm";
 import SkillsForm from "./forms/SkillsForm";
+import useGetSubscription from "@/hooks/use-get-subscription";
 
 const ResumeForm = () => {
   const { resumeInfo } = useResumeContext();
   const [activeFormIndex, setActiveFormIndex] = useState(1);
+  const { data: subscription } = useGetSubscription();
+  const isPro = subscription?.plan === "pro" || subscription?.plan === "enterprise";
 
   const handleNext = () => {
     const newIndex = activeFormIndex + 1;
@@ -54,7 +57,7 @@ const ResumeForm = () => {
             size="default"
             className="!px-2 !py-1 !h-auto"
             disabled={
-              activeFormIndex === 5 || resumeInfo?.status === "archived"
+              activeFormIndex === 7 || resumeInfo?.status === "archived"
                 ? true
                 : false
             }
@@ -80,6 +83,56 @@ const ResumeForm = () => {
 
           {/* {Skills} */}
           {activeFormIndex === 5 && <SkillsForm />}
+
+          {/* {ATS Optimizer} */}
+          {activeFormIndex === 6 && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <h2 className="font-bold text-lg">ATS Optimizer</h2>
+                {!isPro && <span className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">PRO</span>}
+              </div>
+              {isPro ? (
+                <div className="p-8 border-2 border-dashed rounded-xl text-center">
+                  <p className="text-muted-foreground">ATS Optimization Engine is ready. Scan your resume against job descriptions.</p>
+                  <Button className="mt-4 bg-emerald-600 hover:bg-emerald-700">Run Optimizer</Button>
+                </div>
+              ) : (
+                <div className="p-8 bg-emerald-50 dark:bg-emerald-950/20 rounded-2xl border border-emerald-100 dark:border-emerald-900/50 text-center">
+                  <Lock className="w-10 h-10 text-emerald-600 mx-auto mb-4" />
+                  <h3 className="font-bold text-lg mb-2">Upgrade to Unlock ATS Scoring</h3>
+                  <p className="text-sm text-muted-foreground mb-6">Get detailed keyword suggestions and match scores for your target roles.</p>
+                  <Button className="bg-emerald-600 hover:bg-emerald-700 font-bold" asChild>
+                    <a href="/pricing">Upgrade for ₹99</a>
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* {Shadow Resumes} */}
+          {activeFormIndex === 7 && (
+            <div className="space-y-4">
+               <div className="flex items-center gap-2">
+                <h2 className="font-bold text-lg">Shadow Resumes</h2>
+                {!isPro && <span className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">PRO</span>}
+              </div>
+              {isPro ? (
+                <div className="p-8 border-2 border-dashed rounded-xl text-center">
+                  <p className="text-muted-foreground">Generate role-specific versions of this resume (e.g., Frontend, Fullstack).</p>
+                  <Button className="mt-4 bg-emerald-600 hover:bg-emerald-700">Generate Shadow Copy</Button>
+                </div>
+              ) : (
+                <div className="p-8 bg-emerald-50 dark:bg-emerald-950/20 rounded-2xl border border-emerald-100 dark:border-emerald-900/50 text-center">
+                  <Lock className="w-10 h-10 text-emerald-600 mx-auto mb-4" />
+                  <h3 className="font-bold text-lg mb-2">One Profile, Multiple Roles</h3>
+                  <p className="text-sm text-muted-foreground mb-6">Upgrade to create "Shadow" versions of your resume tailored for different job titles.</p>
+                  <Button className="bg-emerald-600 hover:bg-emerald-700 font-bold" asChild>
+                    <a href="/pricing">Upgrade for ₹99</a>
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
