@@ -38,11 +38,8 @@ const ResumeItem: FC<PropType> = ({
       role="button"
       className="
         cursor-pointer max-w-[164px] w-full
-        border 
-        rounded-lg transition-all h-[197px]
-        hover:border-primary
-        hover:shadow-md
-        shadow-primary
+        transition-all h-[197px]
+        glass-card squircle hover:scale-[1.02] active:scale-[0.98]
         "
       onClick={gotoDoc}
       style={{ borderColor: themeColor || "" }}

@@ -24,9 +24,7 @@ const Header = () => {
 
   return (
     <div
-      className="shadow-sm w-full sticky
-    top-0 bg-white dark:bg-gray-900 z-[9]
-        "
+      className="w-full sticky top-0 z-[9] glass-card !border-b !border-t-0 !border-x-0 !rounded-none shadow-sm"
     >
       <div
         className="w-full mx-auto max-w-7xl
@@ -41,11 +39,9 @@ const Header = () => {
           <div>
             <Link
               href="/dashboard"
-              className="font-black text-[20px]
-                      text-primary
-                          "
+              className="font-black text-[22px] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600"
             >
-              CVbuild.ai
+              SmartCraft
             </Link>
           </div>
 

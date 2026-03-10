@@ -52,15 +52,13 @@ const AddResume = () => {
       >
         <div
           className={`
-        py-24 h-[183px] flex flex-col
-        rounded-lg gap-2 w-full max-w-full
+        py-24 h-[197px] flex flex-col
+        squircle gap-2 w-full max-w-full
         items-center justify-center
-        border
-        bg-white
-        transition
-        hover:shadow
-        dark:bg-secondary
-        ${isLimitReached ? 'opacity-70 grayscale' : 'hover:border-primary'}
+        glass-card
+        transition-all
+        hover:scale-[1.02] active:scale-[0.98]
+        ${isLimitReached ? 'opacity-70 grayscale cursor-not-allowed' : 'hover:border-primary/50'}
         `}
         >
           <span>
