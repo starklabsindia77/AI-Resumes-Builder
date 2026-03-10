@@ -22,9 +22,10 @@ const PreviewModal = () => {
             disabled={
               isLoading || resumeInfo?.status === "archived" ? true : false
             }
-            variant="secondary"
-            className="bg-white border gap-1
-                   dark:bg-gray-800 !p-2 w-9
+            variant="outline"
+            className="glass-card squircle gap-1
+                   bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm
+                   !p-2 w-9 border-white/20 hover:border-emerald-500/50
                     lg:w-auto lg:p-4"
           >
             <div className="flex items-center gap-1">
@@ -39,14 +40,15 @@ const PreviewModal = () => {
                    w-full max-h-[90vh]
                    lg:max-h-[95vh]
                    overflow-y-auto
-              
+                   glass-card backdrop-blur-3xl squircle border-white/20
+                   shadow-2xl bg-white/70 dark:bg-slate-950/70
                   "
         >
           <DialogHeader
             className="!pb-0
                   !m-0 sticky top-0
-                  backdrop-blur bg-white
-                   dark:bg-black/80 z-10
+                  backdrop-blur-xl bg-white/50
+                   dark:bg-slate-950/50 z-10 border-b border-white/10
                   "
           >
             <DialogTitle

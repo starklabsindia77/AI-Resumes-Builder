@@ -2,19 +2,33 @@
 import React, { useState } from "react";
 import { useResumeContext } from "@/context/resume-info-provider";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Lock } from "lucide-react";
+import { ArrowLeft, ArrowRight, Lock, Loader, Sparkles, Check } from "lucide-react";
 import PersonalInfoForm from "./forms/PersonalInfoForm";
 import SummaryForm from "./forms/SummaryForm";
 import ExperienceForm from "./forms/ExperienceForm";
 import EducationForm from "./forms/EducationForm";
 import SkillsForm from "./forms/SkillsForm";
 import useGetSubscription from "@/hooks/use-get-subscription";
+import { Textarea } from "@/components/ui/textarea";
+import { AtsGauge } from "@/components/AtsGauge";
+import useAnalyzeResume from "@/features/ai/use-analyze-resume";
+import { motion } from "framer-motion";
 
 const ResumeForm = () => {
   const { resumeInfo } = useResumeContext();
   const [activeFormIndex, setActiveFormIndex] = useState(1);
   const { data: subscription } = useGetSubscription();
   const isPro = subscription?.plan === "pro" || subscription?.plan === "enterprise";
+
+  const [jobDescription, setJobDescription] = useState("");
+  const { mutate: analyze, isPending: analyzing, data: analysisResult } = useAnalyzeResume();
+
+  const onAnalyze = () => {
+    analyze({
+      resumeData: resumeInfo,
+      jobDescription
+    });
+  };
 
   const handleNext = () => {
     const newIndex = activeFormIndex + 1;
@@ -27,17 +41,15 @@ const ResumeForm = () => {
   "
     >
       <div
-        className="shadow-md rounded-md bg-white
-      !border-t-primary !border-t-4 
-      dark:bg-card dark:border
-      dark:border-gray-800
-      "
+        className="glass-card squircle overflow-hidden
+        bg-white/60 dark:bg-slate-900/60 backdrop-blur-sm
+        "
       >
         <div
           className="
         flex items-center gap-1
-        px-3 justify-end
-        border-b py-[7px] min-h-10
+        px-4 justify-end
+        border-b border-white/20 dark:border-slate-800/50 py-3 min-h-12
         "
         >
           {activeFormIndex > 1 && (
@@ -92,9 +104,70 @@ const ResumeForm = () => {
                 {!isPro && <span className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">PRO</span>}
               </div>
               {isPro ? (
-                <div className="p-8 border-2 border-dashed rounded-xl text-center">
-                  <p className="text-muted-foreground">ATS Optimization Engine is ready. Scan your resume against job descriptions.</p>
-                  <Button className="mt-4 bg-emerald-600 hover:bg-emerald-700">Run Optimizer</Button>
+                <div className="space-y-6">
+                  <div className="p-4 bg-white/40 dark:bg-slate-900/40 rounded-xl border border-white/20">
+                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
+                      Target Job Description
+                    </label>
+                    <Textarea 
+                      placeholder="Paste the job description here for precision matching..."
+                      className="min-h-[150px] bg-transparent border-none focus-visible:ring-0 p-0 resize-none text-sm"
+                      value={jobDescription}
+                      onChange={(e) => setJobDescription(e.target.value)}
+                    />
+                    <div className="flex justify-end mt-4">
+                      <Button 
+                        className="bg-emerald-600 hover:bg-emerald-700 font-bold px-6"
+                        onClick={onAnalyze}
+                        disabled={analyzing || !jobDescription}
+                      >
+                        {analyzing ? <Loader className="animate-spin mr-2" /> : <Sparkles className="mr-2 w-4 h-4" />}
+                        {analyzing ? "Analyzing Content..." : "Run AI Optimizer"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {analysisResult?.success && analysisResult.data && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="space-y-6"
+                    >
+                      <div className="flex flex-col md:flex-row items-center gap-8 p-6 glass-card squircle">
+                         <AtsGauge score={analysisResult.data.score} label="ATS Score" />
+                         <div className="flex-1 space-y-2">
+                            <h4 className="font-bold text-emerald-600 dark:text-emerald-400 uppercase text-xs tracking-widest">Match Summary</h4>
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                              {analysisResult.data.summary}
+                            </p>
+                         </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-5 glass-card squircle bg-amber-500/5 border-amber-500/10">
+                           <h4 className="font-bold text-amber-600 dark:text-amber-400 text-xs uppercase tracking-widest mb-3">Missing Keywords</h4>
+                           <div className="flex flex-wrap gap-2">
+                              {analysisResult.data.missingKeywords?.map((kw: string, i: number) => (
+                                <span key={i} className="px-2 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-md text-[10px] font-bold">
+                                  {kw}
+                                </span>
+                              ))}
+                           </div>
+                        </div>
+                        <div className="p-5 glass-card squircle bg-emerald-500/5 border-emerald-500/10">
+                           <h4 className="font-bold text-emerald-600 dark:text-emerald-400 text-xs uppercase tracking-widest mb-3">Improvement Tips</h4>
+                           <ul className="space-y-2">
+                              {analysisResult.data.improvementTips?.slice(0, 3).map((tip: string, i: number) => (
+                                <li key={i} className="text-[11px] text-muted-foreground flex items-start gap-2">
+                                  <Check className="w-3 h-3 text-emerald-500 mt-0.5 shrink-0" />
+                                  {tip}
+                                </li>
+                              ))}
+                           </ul>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
                 </div>
               ) : (
                 <div className="p-8 bg-emerald-50 dark:bg-emerald-950/20 rounded-2xl border border-emerald-100 dark:border-emerald-900/50 text-center">

@@ -24,7 +24,7 @@ const Header = () => {
 
   return (
     <div
-      className="w-full sticky top-0 z-[9] glass-card !border-b !border-t-0 !border-x-0 !rounded-none shadow-sm"
+      className="w-full sticky top-0 z-50 glass-card backdrop-blur-xl !border-b !border-t-0 !border-x-0 !rounded-none shadow-sm bg-white/70 dark:bg-slate-950/70"
     >
       <div
         className="w-full mx-auto max-w-7xl
@@ -37,11 +37,9 @@ const Header = () => {
             "
         >
           <div>
-            <Link
-              href="/dashboard"
-              className="font-black text-[22px] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600"
-            >
-              SmartCraft
+            <Link href="/dashboard" className="flex items-center gap-2 group">
+              <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold group-hover:scale-110 transition-transform shadow-lg shadow-emerald-500/20">S</div>
+              <h5 className="font-black text-xl tracking-tight text-emerald-600">SmartCraft</h5>
             </Link>
           </div>
 

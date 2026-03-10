@@ -66,8 +66,8 @@ const TrashListBox = () => {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="bg-background 
-        w-[22rem] !px-2"
+        className="glass-card backdrop-blur-xl squircle
+        w-[22rem] !px-2 shadow-2xl bg-white/80 dark:bg-slate-950/80 border-white/20"
         align="end"
         alignOffset={0}
         forceMount

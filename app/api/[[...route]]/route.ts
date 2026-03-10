@@ -5,6 +5,7 @@ import { HTTPException } from "hono/http-exception";
 import documentRoute from "./document";
 import subscriptionRoute from "./subscription";
 import razorpayRoute from "./razorpay";
+import aiRoute from "./ai";
 
 export const runtime = "nodejs";
 
@@ -23,7 +24,8 @@ const routes = app
   .basePath("/api")
   .route("/document", documentRoute)
   .route("/subscription", subscriptionRoute)
-  .route("/razorpay", razorpayRoute);
+  .route("/razorpay", razorpayRoute)
+  .route("/ai", aiRoute);
 
 app.get("/", (c) => {
   return c.json({

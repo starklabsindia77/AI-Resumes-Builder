@@ -15,11 +15,10 @@ const ResumePreview = () => {
     <div
       id="resume-preview-id"
       className={cn(`
-        shadow-lg bg-white w-full flex-[1.02]
+        glass-card squircle w-full flex-[1.02]
         h-full p-10 !font-open-sans
-        dark:border dark:bg-card 
-        dark:border-b-gray-800 
-        dark:border-x-gray-800
+        bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm
+        shadow-2xl shadow-black/10
         `)}
       style={{
         borderTop: `13px solid ${resumeInfo?.themeColor}`,

@@ -16,16 +16,7 @@ import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Loader, Sparkles } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { AIChatSession } from "@/lib/google-ai-model";
-
-const PROMPT = `Given the job title "{jobTitle}",
- create 6-7 concise and personal bullet points in
-  HTML stringify format that highlight my key
-  skills, relevant technologies, and significant
-   contributions in that role. Do not include
-    the job title itself in the output. Provide
-     only the bullet points inside an unordered
-     list.`;
+import useGetAiSuggestions from "@/features/ai/use-get-ai-suggestions";
 
 const RichTextEditor = (props: {
   jobTitle: string | null;
@@ -34,35 +25,32 @@ const RichTextEditor = (props: {
 }) => {
   const { jobTitle, initialValue, onEditorChange } = props;
 
-  const [loading, setLoading] = useState(false);
   const [value, setValue] = useState(initialValue || "");
+  const { mutate: suggest, isPending: loading } = useGetAiSuggestions();
 
   const GenerateSummaryFromAI = async () => {
-    try {
-      if (!jobTitle) {
-        toast({
-          title: "Must provide Job Postion",
-          variant: "destructive",
-        });
-        return;
-      }
-      setLoading(true);
-      const prompt = PROMPT.replace("{jobTitle}", jobTitle);
-      const result = await AIChatSession.sendMessage(prompt);
-      const responseText = await result.response.text();
-      const validJsonArray = JSON.parse(`[${responseText}]`);
-
-      setValue(validJsonArray?.[0]);
-      onEditorChange(validJsonArray?.[0]);
-    } catch (error) {
-      console.log(error);
+    if (!jobTitle) {
       toast({
-        title: "Failed to generate summary",
+        title: "Must provide Job Position",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
+      return;
     }
+
+    suggest({
+      type: "experience",
+      context: jobTitle
+    }, {
+      onSuccess: (response) => {
+        if (response.success && response.data?.[0]) {
+          // Join bullets if they aren't already formatted as HTML or just pick the best one
+          // The backend prompt specifically asks for bullet points
+          const aiValue = response.data[0]; 
+          setValue(aiValue);
+          onEditorChange(aiValue);
+        }
+      }
+    });
   };
 
   return (

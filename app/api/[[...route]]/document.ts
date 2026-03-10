@@ -498,6 +498,115 @@ const documentRoute = new Hono()
         500
       );
     }
-  });
+  })
+  .post(
+    "/duplicate/:documentId",
+    zValidator(
+      "param",
+      z.object({
+        documentId: z.string(),
+      })
+    ),
+    getAuthUser,
+    async (c) => {
+      try {
+        const user = c.get("user");
+        const { documentId } = c.req.valid("param");
+        const userId = user.id;
+
+        const result = await db.transaction(async (trx) => {
+          // 1. Get original document
+          const originalDoc = await trx.query.documentTable.findFirst({
+            where: and(
+              eq(documentTable.userId, userId),
+              eq(documentTable.documentId, documentId)
+            ),
+            with: {
+              personalInfo: true,
+              experiences: true,
+              educations: true,
+              skills: true,
+            },
+          });
+
+          if (!originalDoc) {
+            throw new Error("Original document not found");
+          }
+
+          // 2. Create new document
+          const newDocumentId = generateDocUUID();
+          const [newDoc] = await trx
+            .insert(documentTable)
+            .values({
+              title: `${originalDoc.title} (Shadow)`,
+              userId: userId,
+              documentId: newDocumentId,
+              authorName: originalDoc.authorName,
+              authorEmail: originalDoc.authorEmail,
+              summary: originalDoc.summary,
+              thumbnail: originalDoc.thumbnail,
+              themeColor: originalDoc.themeColor,
+              status: "private",
+            })
+            .returning();
+
+          // 3. Duplicate relations
+          if (originalDoc.personalInfo) {
+            const { id, docId, ...piData } = originalDoc.personalInfo;
+            await trx.insert(personalInfoTable).values({
+              ...piData,
+              docId: newDoc.id,
+            });
+          }
+
+          if (originalDoc.experiences?.length > 0) {
+            for (const exp of originalDoc.experiences) {
+              const { id, docId, ...expData } = exp;
+              await trx.insert(experienceTable).values({
+                ...expData,
+                docId: newDoc.id,
+              });
+            }
+          }
+
+          if (originalDoc.educations?.length > 0) {
+            for (const edu of originalDoc.educations) {
+              const { id, docId, ...eduData } = edu;
+              await trx.insert(educationTable).values({
+                ...eduData,
+                docId: newDoc.id,
+              });
+            }
+          }
+
+          if (originalDoc.skills?.length > 0) {
+            for (const skill of originalDoc.skills) {
+              const { id, docId, ...skillData } = skill;
+              await trx.insert(skillsTable).values({
+                ...skillData,
+                docId: newDoc.id,
+              });
+            }
+          }
+
+          return newDoc;
+        });
+
+        return c.json({
+          success: true,
+          data: result,
+        });
+      } catch (error) {
+        return c.json(
+          {
+            success: false,
+            message: "Failed to duplicate document",
+            error: error instanceof Error ? error.message : "Unknown error",
+          },
+          500
+        );
+      }
+    }
+  );
 
 export default documentRoute;

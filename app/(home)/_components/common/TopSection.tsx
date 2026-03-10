@@ -57,22 +57,22 @@ const TopSection = () => {
       {resumeInfo?.status === "archived" && (
         <div
           className="
-            absolute z-[9] inset-0 h-6 top-0
-            bg-rose-500 text-center
-            text-base p-2 text-white
+            absolute z-50 inset-x-0 top-0 h-8
+            bg-rose-500/90 backdrop-blur-sm text-center
+            text-sm p-2 text-white
             flex items-center gap-x-2 
-            justify-center font-medium
-
+            justify-center font-bold tracking-wide
             "
         >
-          <AlertCircle size="16px" />
-          This resume is in the trash bin
+          <AlertCircle size="14px" />
+          RESUME IN TRASH BIN
         </div>
       )}
       <div
         className="
           w-full flex items-center justify-between
-          border-b pb-3
+          glass-card px-6 py-3 squircle mb-6
+          bg-white/40 dark:bg-slate-900/40 backdrop-blur-md
           "
       >
         <div className="flex items-center gap-2">
