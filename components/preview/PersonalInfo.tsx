@@ -1,16 +1,20 @@
 "use client";
+import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { INITIAL_THEME_COLOR } from "@/lib/helper";
 import { ResumeDataType } from "@/types/resume.type";
+import { TemplateConfig } from "@/lib/templates-config";
 import React, { FC } from "react";
 
 interface PropsType {
   resumeInfo: ResumeDataType | undefined;
   isLoading: boolean;
+  config?: TemplateConfig;
 }
 
-const PersonalInfo: FC<PropsType> = ({ resumeInfo, isLoading }) => {
-  const themeColor = resumeInfo?.themeColor || INITIAL_THEME_COLOR;
+const PersonalInfo: FC<PropsType> = ({ resumeInfo, isLoading, config }) => {
+  const themeColor = config?.styles.primaryColor || resumeInfo?.themeColor || INITIAL_THEME_COLOR;
+  const alignment = config?.styles.headerAlignment || "center";
 
   if (isLoading) {
     return <SkeletonLoader />;
@@ -18,9 +22,7 @@ const PersonalInfo: FC<PropsType> = ({ resumeInfo, isLoading }) => {
   return (
     <div className="w-full min-h-14">
       <h2
-        className="
-        font-bold text-xl text-center
-      "
+        className={cn("font-bold text-xl", alignment === "center" ? "text-center" : "text-left")}
         style={{
           color: themeColor,
         }}
@@ -28,13 +30,11 @@ const PersonalInfo: FC<PropsType> = ({ resumeInfo, isLoading }) => {
         {resumeInfo?.personalInfo?.firstName || "First Name"}{" "}
         {resumeInfo?.personalInfo?.lastName || "Last Name"}
       </h2>
-      <h5 className="text-center text-sm font-medium">
+      <h5 className={cn("text-sm font-medium", alignment === "center" ? "text-center" : "text-left")}>
         {resumeInfo?.personalInfo?.jobTitle || "Job Title"}
       </h5>
       <p
-        className="text-center font-normal
-            text-[13px]
-          "
+        className={cn("font-normal text-[13px]", alignment === "center" ? "text-center" : "text-left")}
       >
         {resumeInfo?.personalInfo?.address || "House Address"}
       </p>

@@ -51,6 +51,7 @@ export type ResumeDataType = {
   personalInfo?: PersonalInfoType | null;
   themeColor?: string | null;
   template?: string | null;
+  portfolioTemplate?: string | null;
   currentPosition?: number | null;
   summary: string | null;
   experiences?: ExperienceType[] | null;

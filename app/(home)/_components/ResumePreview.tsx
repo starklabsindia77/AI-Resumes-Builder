@@ -2,14 +2,23 @@
 import React from "react";
 import { useResumeContext } from "@/context/resume-info-provider";
 import { cn } from "@/lib/utils";
-import { ClassicTemplate } from "@/components/templates/ClassicTemplate";
-import { ModernTemplate } from "@/components/templates/ModernTemplate";
-import { MinimalistTemplate } from "@/components/templates/MinimalistTemplate";
+import { templateConfigurations } from "@/lib/templates-config";
+import { DynamicTemplate } from "@/components/templates/DynamicTemplate";
 
 const ResumePreview = () => {
   const { resumeInfo, isLoading } = useResumeContext();
 
-  const activeTemplate = resumeInfo?.template || "classic";
+  const activeTemplateId = resumeInfo?.template || "free-classic";
+  
+  // Backwards compatibility for the original 3 template IDs
+  const legacyMap: Record<string, string> = {
+    "classic": "free-classic",
+    "modern": "free-modern",
+    "minimalist": "free-minimal",
+  };
+  
+  const lookupId = legacyMap[activeTemplateId] || activeTemplateId;
+  const activeConfig = templateConfigurations.find(t => t.id === lookupId) || templateConfigurations[0];
 
   return (
     <div
@@ -21,9 +30,11 @@ const ResumePreview = () => {
         shadow-2xl shadow-black/10
         `)}
     >
-       {activeTemplate === 'classic' && <ClassicTemplate resumeInfo={resumeInfo} isLoading={isLoading} />}
-       {activeTemplate === 'modern' && <ModernTemplate resumeInfo={resumeInfo} isLoading={isLoading} />}
-       {activeTemplate === 'minimalist' && <MinimalistTemplate resumeInfo={resumeInfo} isLoading={isLoading} />}
+       <DynamicTemplate 
+         config={activeConfig} 
+         resumeInfo={resumeInfo} 
+         isLoading={isLoading} 
+       />
     </div>
   );
 };

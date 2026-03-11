@@ -28,6 +28,7 @@ export const documentTable = pgTable("document", {
     .default("#7c3aed"),
   thumbnail: text("thumbnail"),
   template: varchar("template", { length: 50 }).notNull().default("classic"),
+  portfolioTemplate: varchar("portfolio_template", { length: 50 }).notNull().default("modern-portfolio"),
   currentPosition: integer("current_position").notNull().default(1),
   status: statusEnum("status").notNull().default("private"),
   authorName: varchar("author_name", { length: 255 }).notNull(),
@@ -50,6 +51,7 @@ export const createDocumentTableSchema = createInsertSchema(documentTable, {
   themeColor: (schema) => schema.themeColor.optional(),
   thumbnail: (schema) => schema.thumbnail.optional(),
   template: (schema) => schema.template.optional(),
+  portfolioTemplate: (schema) => schema.portfolioTemplate.optional(),
   currentPosition: (schema) => schema.currentPosition.optional(),
 }).pick({
   title: true,
@@ -58,6 +60,7 @@ export const createDocumentTableSchema = createInsertSchema(documentTable, {
   themeColor: true,
   thumbnail: true,
   template: true,
+  portfolioTemplate: true,
   currentPosition: true,
 });
 
@@ -68,6 +71,7 @@ export const updateCombinedSchema = z.object({
   summary: createDocumentTableSchema.shape.summary.optional(),
   themeColor: createDocumentTableSchema.shape.themeColor.optional(),
   template: createDocumentTableSchema.shape.template.optional(),
+  portfolioTemplate: createDocumentTableSchema.shape.portfolioTemplate.optional(),
   currentPosition: createDocumentTableSchema.shape.currentPosition.optional(),
   personalInfo: personalInfoTableSchema.optional(),
   education: z.array(educationTableSchema).optional(),
