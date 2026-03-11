@@ -15,6 +15,13 @@
       "when": 1730172513996,
       "tag": "0001_medical_zarek",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773214652431,
+      "tag": "0002_shocking_sharon_carter",
+      "breakpoints": true
     }
   ]
 }

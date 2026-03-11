@@ -37,7 +37,7 @@ const ImportLinkedIn = () => {
     parse(
       { text },
       {
-        onSuccess: (response) => {
+        onSuccess: (response: any) => {
           if (response.success && response.data) {
             // Now create the document with the parsed data
             create(

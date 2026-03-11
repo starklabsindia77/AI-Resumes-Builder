@@ -197,6 +197,72 @@ const aiRoute = new Hono()
         );
       }
     }
+  )
+  .post(
+    "/match",
+    zValidator(
+      "json",
+      z.object({
+        resumeData: z.any(),
+        jobDescription: z.string(),
+      })
+    ),
+    getAuthUser,
+    async (c) => {
+      try {
+        const { resumeData, jobDescription } = c.req.valid("json");
+
+        const prompt = `
+          As an elite ATS (Applicant Tracking System) Specialist and Senior Recruiter, perform a deep-dive comparison between the provided resume and the Job Description.
+          
+          RESUME DATA:
+          ${JSON.stringify(resumeData)}
+          
+          JOB DESCRIPTION:
+          ${jobDescription}
+          
+          Instructions:
+          1. Calculate a "Match Score" out of 100 based on keyword density, core skills, and experience level.
+          2. Identify "Matching Keywords" that are present in both.
+          3. Identify "Missing Critical Keywords" that are in the JD but not the resume.
+          4. Provide 3-5 "Optimization Tips" specifically on how to rewrite sections to better align with this JD.
+          5. Suggest 2 "Impactful Revisions" for existing bullet points to include missing keywords.
+
+          Provide the response in the following strict JSON format:
+          {
+            "matchScore": number,
+            "matchingKeywords": ["kw1", "kw2", ...],
+            "missingKeywords": ["kw1", "kw2", ...],
+            "improvementTips": ["tip1", "tip2", ...],
+            "impactfulRevisions": [
+              { "original": "text", "suggested": "text", "reason": "text" }
+            ]
+          }
+          
+          Be very critical and professional. Use industry-standard terminology.
+        `;
+
+        const result = await AIChatSession.sendMessage(prompt);
+        const responseText = result.response.text();
+        const cleanJson = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+        const matchResult = JSON.parse(cleanJson);
+
+        return c.json({
+          success: true,
+          data: matchResult,
+        });
+      } catch (error) {
+        console.error("ATS Match Error:", error);
+        return c.json(
+          {
+            success: false,
+            message: "Failed to perform JD matching analysis",
+            error: error instanceof Error ? error.message : "Unknown error",
+          },
+          500
+        );
+      }
+    }
   );
 
 export default aiRoute;

@@ -5,6 +5,7 @@ import React, { useCallback } from "react";
 import ResumeTitle from "./ResumeTitle";
 import useUpdateDocument from "@/features/document/use-update-document";
 import { toast } from "@/hooks/use-toast";
+import { TemplateSelector } from "../TemplateSelector";
 import ThemeColor from "./ThemeColor";
 import PreviewModal from "../PreviewModal";
 import Download from "./Download";
@@ -87,7 +88,10 @@ const TopSection = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* {ThemeColor} */}
+          {/* Template Selector */}
+          <TemplateSelector />
+
+          {/* ThemeColor */}
           <ThemeColor />
 
           {/* Preview Modal */}

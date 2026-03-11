@@ -41,7 +41,7 @@ const RichTextEditor = (props: {
       type: "experience",
       context: jobTitle
     }, {
-      onSuccess: (response) => {
+      onSuccess: (response: any) => {
         if (response.success && response.data?.[0]) {
           // Join bullets if they aren't already formatted as HTML or just pick the best one
           // The backend prompt specifically asks for bullet points

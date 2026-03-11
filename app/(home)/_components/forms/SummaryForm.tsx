@@ -83,8 +83,8 @@ const SummaryForm = (props: { handleNext: () => void }) => {
       type: "summary",
       context: jobTitle
     }, {
-      onSuccess: (response) => {
-        if (response.success) {
+      onSuccess: (response: any) => {
+        if (response.success && response.data) {
           setAiSuggestions(response.data);
         }
       }

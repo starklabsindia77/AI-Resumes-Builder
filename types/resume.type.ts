@@ -50,6 +50,7 @@ export type ResumeDataType = {
   thumbnail?: string | null;
   personalInfo?: PersonalInfoType | null;
   themeColor?: string | null;
+  template?: string | null;
   currentPosition?: number | null;
   summary: string | null;
   experiences?: ExperienceType[] | null;
