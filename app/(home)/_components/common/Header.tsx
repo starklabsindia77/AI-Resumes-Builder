@@ -22,6 +22,8 @@ const Header = () => {
   const { data: subscription } = useGetSubscription();
   const isPro = subscription?.plan === "pro" || subscription?.plan === "enterprise";
 
+  const userPicture = user?.picture && !user.picture.includes("d=blank") ? user.picture : null;
+
   return (
     <div
       className="w-full sticky top-0 z-50 glass-card backdrop-blur-xl !border-b !border-t-0 !border-x-0 !rounded-none shadow-sm bg-white/70 dark:bg-slate-950/70"
@@ -98,9 +100,9 @@ const Header = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger role="button">
                     <div className="flex items-center gap-1">
-                      <Avatar role="button" className="!cursor-pointer">
-                        <AvatarImage src={user?.picture || ""} />
-                        <AvatarFallback className="!cursor-pointer">
+                      <Avatar role="button" className="!cursor-pointer border border-slate-200 dark:border-slate-800">
+                        {userPicture && <AvatarImage src={userPicture} />}
+                        <AvatarFallback className="!cursor-pointer bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 font-bold">
                           {user?.given_name?.[0]}
                           {user?.family_name?.[0]}
                         </AvatarFallback>
