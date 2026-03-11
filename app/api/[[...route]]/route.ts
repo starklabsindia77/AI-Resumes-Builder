@@ -14,10 +14,11 @@ const app = new Hono();
 app.use("*", logger());
 
 app.onError((err, c) => {
+  console.error("Hono Error:", err);
   if (err instanceof HTTPException) {
     return err.getResponse();
   }
-  return c.json({ error: "internal error" });
+  return c.json({ error: "internal error", message: err.message });
 });
 
 const routes = app
