@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/context/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import QueryProvider from "@/context/query-provider";
+import { Analytics } from "@vercel/analytics/react";
 
 const urbanist = Urbanist({ subsets: ["latin"] });
 const open_sans = Open_Sans({
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "SmartCraft - AI Resume Builder",
     description: "Smarter resumes for smarter careers. Build your dream resume with AI.",
-    url: "https://smartcraft.ai",
+    url: "https://smartcraft.algoborne.com",
     siteName: "SmartCraft",
     locale: "en_US",
     type: "website",
@@ -51,6 +52,7 @@ export default function RootLayout({
           >
             {children}
             <Toaster />
+            <Analytics />
           </ThemeProvider>
         </QueryProvider>
       </body>
