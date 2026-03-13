@@ -16,6 +16,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import useGetSubscription from "@/hooks/use-get-subscription";
+import UpgradeModal from "../UpgradeModal";
+
 const Header = () => {
   const { setTheme } = useTheme();
   const { user, isAuthenticated, isLoading, error } = useKindeBrowserClient();
@@ -46,22 +48,37 @@ const Header = () => {
           </div>
 
           {isAuthenticated && user ? (
-            <div className="flex items-center gap-2">
-              <span
-                className="font-normal
-               text-black/50
-               dark:text-primary-foreground text-sm"
-              >
-                Hi,
-              </span>
-              <h5
-                className="font-bold text-black 
-              dark:text-primary-foreground text-sm"
-              >
-                {user?.given_name}
-              </h5>
-              <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${isPro ? 'bg-emerald-600 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
-                {subscription?.plan || 'Starter'}
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2">
+                <span
+                  className="font-normal
+                text-black/50
+                dark:text-primary-foreground text-sm"
+                >
+                  Hi,
+                </span>
+                <h5
+                  className="font-bold text-black 
+                dark:text-primary-foreground text-sm"
+                >
+                  {user?.given_name}
+                </h5>
+                <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${isPro ? 'bg-emerald-600 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
+                  {subscription?.plan || 'Starter'}
+                </div>
+              </div>
+
+              <div className="hidden md:flex items-center gap-4">
+                <Link href="/pricing" className="text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-emerald-600 transition-colors">
+                  Pricing
+                </Link>
+                {!isPro && (
+                  <UpgradeModal>
+                    <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow-lg shadow-emerald-500/20 px-4">
+                      Upgrade to Pro
+                    </Button>
+                  </UpgradeModal>
+                )}
               </div>
             </div>
           ) : null}

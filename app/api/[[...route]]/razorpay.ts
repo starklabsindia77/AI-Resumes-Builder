@@ -28,10 +28,63 @@ const razorpayRoute = new Hono()
       };
 
       try {
+        console.log("Creating Razorpay order for user:", user.id, "amount:", amount);
         const order = await razorpay.orders.create(options);
+        console.log("Razorpay order created successfully:", order.id);
         return c.json(order);
       } catch (error) {
-        return c.json({ error: "Failed to create order" }, 500);
+        console.error("Failed to create Razorpay order:", error);
+        return c.json({ error: "Failed to create order", details: error instanceof Error ? error.message : "Internal error" }, 500);
+      }
+    }
+  )
+  .post(
+    "/verify",
+    getAuthUser,
+    zValidator("json", z.object({
+      razorpay_order_id: z.string(),
+      razorpay_payment_id: z.string(),
+      razorpay_signature: z.string(),
+    })),
+    async (c) => {
+      const user = c.get("user");
+      const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = c.req.valid("json");
+
+      const secret = process.env.RAZORPAY_KEY_SECRET;
+      if (!secret) {
+        return c.json({ error: "Server configuration error" }, 500);
+      }
+
+      const generated_signature = crypto
+        .createHmac("sha256", secret)
+        .update(razorpay_order_id + "|" + razorpay_payment_id)
+        .digest("hex");
+
+      if (generated_signature !== razorpay_signature) {
+        return c.json({ error: "Invalid payment signature" }, 400);
+      }
+
+      try {
+        await db
+          .insert(userSubscriptionTable)
+          .values({
+            id: user.id,
+            plan: "pro",
+            razorpayOrderId: razorpay_order_id,
+          })
+          .onConflictDoUpdate({
+            target: userSubscriptionTable.id,
+            set: {
+              plan: "pro",
+              razorpayOrderId: razorpay_order_id,
+              updatedAt: new Date(),
+            },
+          });
+
+        return c.json({ success: true, message: "Subscription updated" });
+      } catch (error) {
+        console.error("Failed to update subscription after verification:", error);
+        return c.json({ error: "Failed to update subscription" }, 500);
       }
     }
   )

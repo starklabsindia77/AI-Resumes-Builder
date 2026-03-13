@@ -18,8 +18,9 @@ export interface TemplateConfig {
     borders: BorderStyle;
     sectionHeadings: AccentStyle;
     headerAlignment: HeaderAlignment;
-    primaryColor?: string; // If undefined, falls back to user's theme color choice
+    primaryColor?: string;
   };
+  imageUrl?: string;
 }
 
 // Ensure exactly 50 distinct templates
@@ -31,7 +32,8 @@ export const templateConfigurations: TemplateConfig[] = [
     description: "The universally accepted traditional single-column format.",
     category: "Professional",
     isPremium: false,
-    styles: { typography: "classic", layout: "single-column", spacing: "normal", borders: "accent-top", sectionHeadings: "outline", headerAlignment: "left" }
+    styles: { typography: "classic", layout: "single-column", spacing: "normal", borders: "accent-top", sectionHeadings: "outline", headerAlignment: "left" },
+    imageUrl: "/images/templates/classic.png"
   },
   {
     id: "free-modern",
@@ -39,7 +41,8 @@ export const templateConfigurations: TemplateConfig[] = [
     description: "A clean, modern take with sans-serif fonts and subtle accents.",
     category: "Tech",
     isPremium: false,
-    styles: { typography: "modern", layout: "single-column", spacing: "normal", borders: "accent-left", sectionHeadings: "none", headerAlignment: "left" }
+    styles: { typography: "modern", layout: "single-column", spacing: "normal", borders: "accent-left", sectionHeadings: "none", headerAlignment: "left" },
+    imageUrl: "/images/templates/modern.png"
   },
   {
     id: "free-minimal",
@@ -47,7 +50,8 @@ export const templateConfigurations: TemplateConfig[] = [
     description: "Zero distractions. Focus entirely on the content.",
     category: "Minimal",
     isPremium: false,
-    styles: { typography: "minimalist", layout: "single-column", spacing: "spacious", borders: "none", sectionHeadings: "none", headerAlignment: "center" }
+    styles: { typography: "minimalist", layout: "single-column", spacing: "spacious", borders: "none", sectionHeadings: "none", headerAlignment: "center" },
+    imageUrl: "/images/templates/minimal.png"
   },
   {
     id: "free-split",
@@ -63,7 +67,8 @@ export const templateConfigurations: TemplateConfig[] = [
     description: "A slightly more expressive free layout.",
     category: "Creative",
     isPremium: false,
-    styles: { typography: "elegant", layout: "single-column", spacing: "compact", borders: "boxed", sectionHeadings: "subtle-bg", headerAlignment: "center" }
+    styles: { typography: "elegant", layout: "single-column", spacing: "compact", borders: "boxed", sectionHeadings: "subtle-bg", headerAlignment: "center" },
+    imageUrl: "/images/templates/creative.png"
   },
   {
     id: "free-tech",

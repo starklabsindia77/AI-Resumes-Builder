@@ -15,11 +15,15 @@ import useParseLinkedIn from "@/features/ai/use-parse-linkedin";
 import useCreateDocument from "@/features/document/use-create-document";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
+import useGetSubscription from "@/hooks/use-get-subscription";
+import UpgradeModal from "./UpgradeModal";
 
 const ImportLinkedIn = () => {
   const [text, setText] = useState("");
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const { data: subscription } = useGetSubscription();
+  const isPro = subscription?.plan === "pro" || subscription?.plan === "enterprise";
 
   const { mutate: parse, isPending: isParsing } = useParseLinkedIn();
   const { mutate: create, isPending: isCreating } = useCreateDocument();
@@ -64,23 +68,37 @@ const ImportLinkedIn = () => {
     );
   };
 
+  const trigger = (
+    <div
+      role="button"
+      className="p-[2px] w-full cursor-pointer max-w-[164px]"
+    >
+      <div
+        className={`py-24 h-[197px] flex flex-col squircle gap-2 w-full max-w-full items-center justify-center glass-card transition-all hover:scale-[1.02] active:scale-[0.98] border-blue-500/20 hover:border-blue-500/50 ${!isPro ? 'opacity-70 grayscale' : ''}`}
+      >
+        <div className="relative">
+          <Linkedin size="30px" className={isPro ? "text-blue-600" : "text-slate-400"} />
+          <Sparkles size="14px" className="absolute -top-1 -right-1 text-purple-500 animate-pulse" />
+        </div>
+        <p className={`text-sm font-semibold ${isPro ? 'text-blue-900 dark:text-blue-100' : 'text-slate-500'}`}>
+          {isPro ? 'LinkedIn Sync' : 'LinkedIn Sync (Pro)'}
+        </p>
+      </div>
+    </div>
+  );
+
+  if (!isPro) {
+    return (
+      <UpgradeModal>
+        {trigger}
+      </UpgradeModal>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div
-          role="button"
-          className="p-[2px] w-full cursor-pointer max-w-[164px]"
-        >
-          <div
-            className="py-24 h-[197px] flex flex-col squircle gap-2 w-full max-w-full items-center justify-center glass-card transition-all hover:scale-[1.02] active:scale-[0.98] border-blue-500/20 hover:border-blue-500/50"
-          >
-            <div className="relative">
-              <Linkedin size="30px" className="text-blue-600" />
-              <Sparkles size="14px" className="absolute -top-1 -right-1 text-purple-500 animate-pulse" />
-            </div>
-            <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">LinkedIn Sync</p>
-          </div>
-        </div>
+        {trigger}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] glass-card squircle border-blue-500/20">
         <DialogHeader>

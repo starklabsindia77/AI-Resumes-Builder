@@ -6,31 +6,64 @@ import { motion } from "framer-motion";
 import Script from "next/script";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import { LoginLink, useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+import { useRouter } from "next/navigation";
+import { api } from "@/lib/hono-rpc";
 
 export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null);
+  const { isAuthenticated, isLoading: isAuthLoading } = useKindeBrowserClient();
+  const router = useRouter();
 
   const handlePayment = async (plan: any) => {
     if (plan.price === "Free" || plan.price === "Custom") return;
-    
+
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please login to choose a plan and continue with the payment.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(plan.name);
     try {
-      const resp = await fetch("/api/razorpay/order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: 99 }), // Fixed amount for professional plan as requested
+      console.log("Initiating order creation for plan:", plan.name);
+      
+      const resp = await api.razorpay.order.$post({
+        json: { amount: 99 },
       });
-      
+
+      if (!resp.ok) {
+        const errorData = (await resp.json()) as any;
+        console.error("Order creation failed on server:", errorData);
+        throw new Error(errorData.error || "Failed to create order");
+      }
+
       const order = await resp.json();
-      
+      console.log("Order created:", order);
+
+      const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+      if (!razorpayKey) {
+        console.error("CRITICAL: NEXT_PUBLIC_RAZORPAY_KEY_ID is missing in the browser!");
+        toast({
+          title: "Configuration Error",
+          description: "Payment system is not properly configured. Please contact support.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: razorpayKey,
         amount: order.amount,
         currency: order.currency,
         name: "SmartCraft AI",
         description: `Upgrade to ${plan.name} Plan`,
         order_id: order.id,
         handler: function (response: any) {
+          console.log("Razorpay Success Response:", response);
           toast({
             title: "Payment Successful!",
             description: "Your Professional subscription is being activated. Please wait a moment.",
@@ -44,13 +77,14 @@ export default function PricingPage() {
           name: "SmartCraft User",
         },
         notes: {
-          userId: order.notes.userId, // Pass back the userId from order notes
+          userId: order.notes?.userId, // Safe access
         },
         theme: {
           color: "#059669",
         },
       };
 
+      console.log("Opening Razorpay modal with options:", { ...options, key: "HIDDEN" });
       const rzp = new (window as any).Razorpay(options);
       rzp.open();
     } catch (err) {
@@ -104,16 +138,16 @@ export default function PricingPage() {
     <div className="min-h-screen relative overflow-hidden bg-slate-50 dark:bg-slate-950 pt-32 pb-24 px-4 text-left">
       {/* Liquid Mesh Background */}
       <div className="absolute inset-0 liquid-mesh opacity-[0.1] -z-10" />
-      
+
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       <div className="max-w-6xl mx-auto">
-        <motion.div 
-           initial={{ opacity: 0, y: 20 }}
-           animate={{ opacity: 1, y: 0 }}
-           className="text-center mb-20"
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-20"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest mb-6 border border-emerald-500/20">
-             Unbeatable Value
+            Unbeatable Value
           </div>
           <h1 className="text-5xl md:text-7xl font-black mb-6 text-glass">Simple, Transparent Pricing</h1>
           <p className="text-muted-foreground text-xl max-w-2xl mx-auto leading-relaxed">
@@ -142,7 +176,7 @@ export default function PricingPage() {
                 {plan.period && <span className="text-muted-foreground font-bold">{plan.period}</span>}
               </div>
               <p className="text-muted-foreground text-sm mb-8 leading-relaxed font-medium">{plan.description}</p>
-              
+
               <div className="space-y-4 mb-10 flex-1">
                 {plan.features.map((feature, i) => (
                   <div key={i} className="flex items-center gap-3">
@@ -154,24 +188,40 @@ export default function PricingPage() {
                 ))}
               </div>
 
-              <Button 
-                onClick={() => handlePayment(plan)}
-                disabled={loading === plan.name}
-                variant={plan.popular ? "default" : "outline"} 
-                className={`w-full h-14 rounded-xl font-black text-base transition-all ${plan.popular ? 'bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/20' : 'border-border'}`}
-              >
-                {loading === plan.name ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  plan.buttonText
-                )}
-              </Button>
+              {isAuthLoading ? (
+                <Button disabled className="w-full h-14 rounded-xl font-black text-base opacity-50">
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                  Checking Status...
+                </Button>
+              ) : !isAuthenticated ? (
+                <LoginLink className="w-full">
+                  <Button
+                    variant={plan.popular ? "default" : "outline"}
+                    className={`w-full h-14 rounded-xl font-black text-base transition-all ${plan.popular ? 'bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/20' : 'border-border'}`}
+                  >
+                    {plan.buttonText}
+                  </Button>
+                </LoginLink>
+              ) : (
+                <Button
+                  onClick={() => handlePayment(plan)}
+                  disabled={loading === plan.name}
+                  variant={plan.popular ? "default" : "outline"}
+                  className={`w-full h-14 rounded-xl font-black text-base transition-all ${plan.popular ? 'bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/20' : 'border-border'}`}
+                >
+                  {loading === plan.name ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    plan.buttonText
+                  )}
+                </Button>
+              )}
             </motion.div>
           ))}
         </div>
 
         <div className="mt-20 text-center">
-           <p className="text-muted-foreground text-sm font-medium">Safe and secure payments powered by Razorpay. ⚡</p>
+          <p className="text-muted-foreground text-sm font-medium">Safe and secure payments powered by Razorpay. ⚡</p>
         </div>
       </div>
     </div>

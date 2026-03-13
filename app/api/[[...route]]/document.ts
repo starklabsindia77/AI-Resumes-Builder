@@ -602,6 +602,55 @@ const documentRoute = new Hono()
         );
       }
     }
+  )
+  .delete(
+    "/:documentId",
+    zValidator(
+      "param",
+      z.object({
+        documentId: z.string(),
+      })
+    ),
+    getAuthUser,
+    async (c) => {
+      try {
+        const user = c.get("user");
+        const { documentId } = c.req.valid("param");
+        const userId = user.id;
+
+        const [documentData] = await db
+          .update(documentTable)
+          .set({
+            status: "archived",
+          })
+          .where(
+            and(
+              eq(documentTable.userId, userId),
+              eq(documentTable.documentId, documentId)
+            )
+          )
+          .returning();
+
+        if (!documentData) {
+          return c.json({ message: "Document not found or unauthorized" }, 404);
+        }
+
+        return c.json({
+          success: true,
+          message: "Document moved to trash",
+          data: documentData,
+        });
+      } catch (error) {
+        return c.json(
+          {
+            success: false,
+            message: "Failed to delete document",
+            error: error instanceof Error ? error.message : "Internal error",
+          },
+          500
+        );
+      }
+    }
   );
 
 export default documentRoute;

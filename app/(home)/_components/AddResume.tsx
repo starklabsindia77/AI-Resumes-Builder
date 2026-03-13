@@ -5,6 +5,7 @@ import { FileText, Loader, Plus, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useCallback } from "react";
 import { toast } from "@/hooks/use-toast";
+import UpgradeModal from "./UpgradeModal";
 
 const AddResume = () => {
   const router = useRouter();
@@ -43,33 +44,40 @@ const AddResume = () => {
   }, [mutate, router, subscription]);
 
   const isLimitReached = subscription && subscription.resumeCount >= subscription.maxResumes;
+  const content = (
+    <div
+      className={`
+      py-24 h-[197px] flex flex-col
+      squircle gap-2 w-full max-w-full
+      items-center justify-center
+      glass-card
+      transition-all
+      hover:scale-[1.02] active:scale-[0.98]
+      ${isLimitReached ? 'opacity-70 grayscale cursor-pointer hover:border-emerald-500/50' : 'hover:border-primary/50'}
+      `}
+      onClick={isLimitReached ? undefined : onCreate}
+    >
+      <span>
+        {isLimitReached ? <Lock size="30px" className="text-emerald-600" /> : <Plus size="30px" />}
+      </span>
+      <p
+        className={`text-sm font-semibold ${isLimitReached ? 'text-emerald-600' : ''}`}
+      >
+        {isLimitReached ? 'Resume Limit (Pro)' : 'Blank Resume'}
+      </p>
+    </div>
+  );
+
   return (
     <>
-      <div
-        role="button"
-        className="p-[2px] w-full cursor-pointer max-w-[164px]"
-        onClick={isLimitReached ? undefined : onCreate}
-      >
-        <div
-          className={`
-        py-24 h-[197px] flex flex-col
-        squircle gap-2 w-full max-w-full
-        items-center justify-center
-        glass-card
-        transition-all
-        hover:scale-[1.02] active:scale-[0.98]
-        ${isLimitReached ? 'opacity-70 grayscale cursor-not-allowed' : 'hover:border-primary/50'}
-        `}
-        >
-          <span>
-            {isLimitReached ? <Lock size="30px" className="text-muted-foreground" /> : <Plus size="30px" />}
-          </span>
-          <p
-            className={`text-sm font-semibold ${isLimitReached ? 'text-muted-foreground' : ''}`}
-          >
-            {isLimitReached ? 'Resume Limit (Pro)' : 'Blank Resume'}
-          </p>
-        </div>
+      <div className="p-[2px] w-full max-w-[164px]">
+        {isLimitReached ? (
+          <UpgradeModal>
+            {content}
+          </UpgradeModal>
+        ) : (
+          content
+        )}
       </div>
       {isPending && (
         <div

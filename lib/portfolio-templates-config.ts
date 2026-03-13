@@ -18,6 +18,7 @@ export interface PortfolioTemplateConfig {
     background: BackgroundStyle;
     primaryColor?: string;
   };
+  imageUrl?: string;
 }
 
 export const portfolioTemplates: PortfolioTemplateConfig[] = [
@@ -35,6 +36,7 @@ export const portfolioTemplates: PortfolioTemplateConfig[] = [
       typography: "modern",
       background: "solid",
     },
+    imageUrl: "/images/templates/portfolio_1.png"
   },
   {
     id: "free-dev",
@@ -49,6 +51,7 @@ export const portfolioTemplates: PortfolioTemplateConfig[] = [
       typography: "mono",
       background: "dots",
     },
+    imageUrl: "/images/templates/portfolio_2.png"
   },
   {
     id: "free-minimal",

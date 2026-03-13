@@ -234,7 +234,15 @@ export const TemplateSelector = () => {
             )}
           >
             <div className="h-[110px] w-full shrink-0 bg-slate-50 relative pointer-events-none overflow-hidden">
-              {type === 'resume' ? <AbstractPreview config={template} /> : <PortfolioAbstractPreview config={template} />}
+              {template.imageUrl ? (
+                <img 
+                  src={template.imageUrl} 
+                  alt={template.name}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+              ) : (
+                type === 'resume' ? <AbstractPreview config={template} /> : <PortfolioAbstractPreview config={template} />
+              )}
               {isLocked && (
                 <div className="absolute inset-0 bg-slate-900/10 backdrop-blur-[1px] flex items-center justify-center">
                   <div className="bg-white/90 p-2 rounded-full shadow-lg">

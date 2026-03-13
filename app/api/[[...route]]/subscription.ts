@@ -23,7 +23,7 @@ const subscriptionRoute = new Hono()
         data: {
           plan,
           resumeCount: result?.value || 0,
-          maxResumes: plan === "free" ? 1 : Infinity,
+          maxResumes: plan === "free" ? 1 : 100, // Use a large finite number as JSON doesn't support Infinity
         },
       });
     } catch (error) {
